@@ -16,7 +16,7 @@ MURSST_PREFIX = "MUR-JPL-L4-GLOB-v4.1"
 
 dates = [
     d.to_pydatetime().strftime('%Y%m%d')
-    for d in pd.date_range("2002-06-01", "2003-07-01", freq="D")
+    for d in pd.date_range("2002-06-01", "2003-06-05", freq="D")
 ]
 
 def make_filename(time):
