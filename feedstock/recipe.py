@@ -16,9 +16,7 @@ MURSST_PREFIX = "MUR-JPL-L4-GLOB-v4.1"
 
 
 def gen_data_links():
-    granule_query = GranuleQuery()
-    granule_query.bearer_token(os.environ['EARTHDATA_TOKEN'])
-    granules = granule_query.short_name("MUR-JPL-L4-GLOB-v4.1").downloadable(True).get_all()
+    granules = GranuleQuery().short_name("MUR-JPL-L4-GLOB-v4.1").downloadable(True).get_all()
     for granule in granules:
         data_link = next(filter(lambda link: link["rel"] == HTTP_REL, granule["links"]))
         yield data_link["href"]
@@ -29,9 +27,11 @@ pattern = pattern_from_file_sequence(
     "time",
 )
 
+open_kwargs = {'Authorization': f'Bearer {os.environ["EARTHDATA_TOKEN"]}'}
+
 mursst = (
     Create(pattern.items())
-    | OpenURLWithFSSpec()
+    | OpenURLWithFSSpec(open_kwargs=open_kwargs)
     | OpenWithXarray(file_type=pattern.file_type)
     | StoreToZarr(
         store_name="mursst.zarr",
