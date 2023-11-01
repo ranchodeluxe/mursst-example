@@ -50,7 +50,7 @@ class DropVars(beam.PTransform):
 mursst = (
     Create(pattern.items())
     | OpenURLWithFSSpec(open_kwargs=open_kwargs)
-    | OpenWithXarray(file_type=pattern.file_type)
+    | OpenWithXarray(file_type=pattern.file_type, xarray_open_kwargs={"decode_coords": "all"})
     | DropVars()
     | StoreToZarr(
         store_name="mursst.zarr",
