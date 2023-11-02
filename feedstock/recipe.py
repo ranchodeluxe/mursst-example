@@ -9,10 +9,10 @@ from pangeo_forge_recipes.patterns import pattern_from_file_sequence
 from pangeo_forge_recipes.transforms import OpenURLWithFSSpec, OpenWithXarray, StoreToZarr, Indexed, T
 from pangeo_forge_recipes.patterns import FilePattern, ConcatDim, MergeDim
 import logging
-rechunking_logger = logging.getLogger('pangeo_forge_recipes.rechunking')
-rechunking_logger.setLevel(logging.CRITICAL)
-for handler in rechunking_logger.handlers[:]:
-    rechunking_logger.removeHandler(handler)
+#rechunking_logger = logging.getLogger('pangeo_forge_recipes.rechunking')
+#rechunking_logger.setLevel(logging.CRITICAL)
+# for handler in rechunking_logger.handlers[:]:
+#     rechunking_logger.removeHandler(handler)
 print("###############################")
 print(logging.Logger.manager.loggerDict)
 
