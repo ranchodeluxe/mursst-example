@@ -1,13 +1,11 @@
-import base64
-import json
 import os
+
 import apache_beam as beam
 import pandas as pd
 from apache_beam import Create, PTransform, PCollection, Map
-from cmr import GranuleQuery
-from pangeo_forge_recipes.patterns import pattern_from_file_sequence
-from pangeo_forge_recipes.transforms import OpenURLWithFSSpec, OpenWithXarray, StoreToZarr, Indexed, T
+from pangeo_forge_recipes.transforms import OpenURLWithFSSpec, OpenWithXarray, Indexed, StoreToZarr, T
 from pangeo_forge_recipes.patterns import FilePattern, ConcatDim, MergeDim
+from dataclasses import dataclass
 import logging
 
 HTTP_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#'
@@ -34,27 +32,16 @@ pattern = FilePattern(make_filename, concat_dim)
 open_kwargs = {"headers":{'Authorization': f'Bearer {os.environ["EARTHDATA_TOKEN"]}'}}
 
 
-class QuietLoggerDoFn(beam.DoFn):
-    """
-    """
-    def start_bundle(self):
-        # This will adjust logging level at the start of each bundle processing
-        # on each worker.
-        rechunking_logger = logging.getLogger('pangeo_forge_recipes.rechunking')
-        rechunking_logger.setLevel(logging.CRITICAL)
-        rechunking_logger.info(f"[LOGGERINFO]: {logging.Logger.manager.loggerDict}")
-        rechunking_logger.critical(f"[LOGGERCRITICAL]: {logging.Logger.manager.loggerDict}")
-
-    def process(self, element):
-        yield element
-
-
-class SetupLoggingTransform(beam.PTransform):
+@dataclass
+class ShutUpAndStoreToZarr(StoreToZarr):
     """
 
     """
     def expand(self, pcoll: beam.PCollection) -> beam.PCollection:
-        return pcoll | beam.ParDo(QuietLoggerDoFn())
+        rechunking_logger = logging.getLogger('pangeo_forge_recipes.rechunking')
+        rechunking_logger.setLevel(logging.CRITICAL)
+        intermediate_pcoll = super(StoreToZarr).expand(pcoll)
+        return intermediate_pcoll
 
 
 class DropVars(beam.PTransform):
@@ -73,11 +60,10 @@ class DropVars(beam.PTransform):
 
 mursst = (
     Create(pattern.items())
-    | SetupLoggingTransform()
     | OpenURLWithFSSpec(open_kwargs=open_kwargs)
     | OpenWithXarray(file_type=pattern.file_type, xarray_open_kwargs={"decode_coords": "all"})
     | DropVars()
-    | StoreToZarr(
+    | ShutUpAndStoreToZarr(
         store_name="mursst.zarr",
         combine_dims=pattern.combine_dim_keys,
         target_chunks=target_chunks,
