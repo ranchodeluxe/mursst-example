@@ -33,7 +33,7 @@ open_kwargs = {"headers":{'Authorization': f'Bearer {os.environ["EARTHDATA_TOKEN
 
 
 @dataclass
-class ShutUpAndStoreToZarr(beam.PTransform):
+class ShutUpAndStoreToZarr(StoreToZarr):
     """
 
     """
