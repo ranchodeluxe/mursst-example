@@ -13,6 +13,8 @@ rechunking_logger = logging.getLogger('pangeo_forge_recipes.rechunking')
 rechunking_logger.setLevel(logging.CRITICAL)
 for handler in rechunking_logger.handlers[:]:
     rechunking_logger.removeHandler(handler)
+print("###############################")
+print(logging.Logger.manager.loggerDict)
 
 HTTP_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#'
 S3_REL = 'http://esipfed.org/ns/fedsearch/1.1/s3#'
