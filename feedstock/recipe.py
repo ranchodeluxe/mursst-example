@@ -33,15 +33,14 @@ open_kwargs = {"headers":{'Authorization': f'Bearer {os.environ["EARTHDATA_TOKEN
 
 
 @dataclass
-class ShutUpAndStoreToZarr(StoreToZarr):
+class ShutUpAndStoreToZarr(beam.PTransform):
     """
 
     """
     def expand(self, pcoll: beam.PCollection) -> beam.PCollection:
         rechunking_logger = logging.getLogger('pangeo_forge_recipes.rechunking')
         rechunking_logger.setLevel(logging.CRITICAL)
-        intermediate_pcoll = super(StoreToZarr).expand(pcoll)
-        return intermediate_pcoll
+        return pcoll | StoreToZarr()
 
 
 class DropVars(beam.PTransform):
