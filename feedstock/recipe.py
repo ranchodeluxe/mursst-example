@@ -9,10 +9,6 @@ from pangeo_forge_recipes.patterns import pattern_from_file_sequence
 from pangeo_forge_recipes.transforms import OpenURLWithFSSpec, OpenWithXarray, StoreToZarr, Indexed, T
 from pangeo_forge_recipes.patterns import FilePattern, ConcatDim, MergeDim
 import logging
-rechunking_logger = logging.getLogger('pangeo_forge_recipes.rechunking')
-rechunking_logger.setLevel(logging.CRITICAL)
-rechunking_logger.info(f"[LOGGER]: {logging.Logger.manager.loggerDict}")
-rechunking_logger.critical(f"[LOGGERTEST]: {logging.Logger.manager.loggerDict}")
 
 HTTP_REL = 'http://esipfed.org/ns/fedsearch/1.1/data#'
 S3_REL = 'http://esipfed.org/ns/fedsearch/1.1/s3#'
@@ -38,6 +34,29 @@ pattern = FilePattern(make_filename, concat_dim)
 open_kwargs = {"headers":{'Authorization': f'Bearer {os.environ["EARTHDATA_TOKEN"]}'}}
 
 
+class QuietLoggerDoFn(beam.DoFn):
+    """
+    """
+    def start_bundle(self):
+        # This will adjust logging level at the start of each bundle processing
+        # on each worker.
+        rechunking_logger = logging.getLogger('pangeo_forge_recipes.rechunking')
+        rechunking_logger.setLevel(logging.CRITICAL)
+        rechunking_logger.info(f"[LOGGERINFO]: {logging.Logger.manager.loggerDict}")
+        rechunking_logger.critical(f"[LOGGERCRITICAL]: {logging.Logger.manager.loggerDict}")
+
+    def process(self, element):
+        yield element
+
+
+class SetupLoggingTransform(beam.PTransform):
+    """
+
+    """
+    def expand(self, pcoll: beam.PCollection) -> beam.PCollection:
+        return pcoll | beam.ParDo(QuietLoggerDoFn())
+
+
 class DropVars(beam.PTransform):
     """
     Custom Beam transform to drop unused vars
@@ -54,6 +73,7 @@ class DropVars(beam.PTransform):
 
 mursst = (
     Create(pattern.items())
+    | SetupLoggingTransform()
     | OpenURLWithFSSpec(open_kwargs=open_kwargs)
     | OpenWithXarray(file_type=pattern.file_type, xarray_open_kwargs={"decode_coords": "all"})
     | DropVars()
