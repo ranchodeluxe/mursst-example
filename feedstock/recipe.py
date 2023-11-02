@@ -40,7 +40,7 @@ class ShutUpAndStoreToZarr(StoreToZarr):
     def expand(self, pcoll: beam.PCollection) -> beam.PCollection:
         rechunking_logger = logging.getLogger('pangeo_forge_recipes.rechunking')
         rechunking_logger.setLevel(logging.CRITICAL)
-        return pcoll | StoreToZarr(store_name=self.store_name, combine_dim=self.combine_dims, target_chunks=self.target_chunks)
+        return pcoll | StoreToZarr(store_name=self.store_name, combine_dims=self.combine_dims, target_chunks=self.target_chunks)
 
 
 class DropVars(beam.PTransform):
