@@ -35,7 +35,9 @@ open_kwargs = {"headers":{'Authorization': f'Bearer {os.environ["EARTHDATA_TOKEN
 @dataclass
 class ShutUpAndStoreToZarr(StoreToZarr):
     """
-
+    1. subclass so we get @dataclass attributes for `__init__`
+    2. turn off logging (unfortunately only works for this immediate context and not all `StoreToZarr` downstream
+    3. delegate to `StoreToZarr` b/c calling `super()` doesn't work at all :disappointed:
     """
     def expand(self, pcoll: beam.PCollection) -> beam.PCollection:
         rechunking_logger = logging.getLogger('pangeo_forge_recipes.rechunking')
