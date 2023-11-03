@@ -19,7 +19,7 @@ dates = [
     for d in pd.date_range("2002-06-01", "2002-06-05", freq="D")
 ]
 
-target_chunks = {"time": 5}
+target_chunks = {"time": 1}
 
 def make_filename(time):
     base_url = "https://archive.podaac.earthdata.nasa.gov/podaac-ops-cumulus-protected/MUR-JPL-L4-GLOB-v4.1/"
