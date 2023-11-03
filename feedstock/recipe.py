@@ -64,7 +64,7 @@ mursst = (
     | OpenURLWithFSSpec(open_kwargs=open_kwargs)
     | OpenWithXarray(file_type=pattern.file_type, xarray_open_kwargs={"decode_coords": "all"})
     | DropVars()
-    | ShutUpAndStoreToZarr(
+    | StoreToZarr(
         store_name="mursst.zarr",
         combine_dims=pattern.combine_dim_keys,
         target_chunks=target_chunks,
